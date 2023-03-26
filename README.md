@@ -22,7 +22,7 @@ With Word Pacer, you can now tackle those daunting walls of text and accelerate 
 
 ## How to Contribute to Word Pacer:
 We appreciate your interest in contributing to Word Pacer, an open-source project dedicated to enhancing the online reading experience. Follow the steps below to contribute to this project:
-1. Fork the repository: Make a copy of the Word Pacer repository by clicking the "Fork" button in the top-right corner of the [GitHub repository](https://github.com/username/word_pacer).
+1. Fork the repository: Make a copy of the Word Pacer repository by clicking the "Fork" button in the top-right corner of the [GitHub repository](https://github.com/danielpodrazka/word_pacer).
 2. Clone the forked repository: After forking the repository, clone your forked version to your local machine using the command `git clone https://github.com/your_username/word_pacer.git`. Don't forget to replace "your_username" with your valid GitHub username.
 3. Create a new branch: Navigate to the cloned repository on your local machine and create a new branch for your proposed feature or fix using the command `git checkout -b your_branch_name`. Replace "your_branch_name" with a meaningful title that reflects the changes you intend to make.
 4. Make your changes: Implement and test your desired changes in your newly created branch.
