@@ -1,4 +1,4 @@
-# word_pacer
+# Word Pacer
 Introducing Word Pacer - the ultimate reading assistant designed to revolutionize the way you read and interact with online content! Say goodbye to feeling overwhelmed by large chunks of text and hello to an organized and smooth reading experience.
 
 Word Pacer allows you to control the speed at which you read, manage your eye movement, and maintain focus while navigating through online text. By underlining each word at your desired pace, Word Pacer can instantly transform your web-based reading sessions into a more focused, efficient, and enjoyable experience.
