@@ -9,9 +9,12 @@
     "default_popup": "popup.html"
   },
   "manifest_version": 3,
-  "version": "0.7",
-  "description": "Let's you set your pace. It underlines the word you're reading and scrolls automaticallyscreenshots",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "version": "0.8",
+  "description": "Let's you set your pace. It underlines the word you're reading and scrolls automatically",
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "web_accessible_resources": [
     {
       "resources": [ "dictionary.js" ],
