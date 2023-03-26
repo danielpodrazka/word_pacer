@@ -1,18 +1,29 @@
 # 📚 Word Pacer 🚀
 Introducing **Word Pacer** - the ultimate reading assistant designed to revolutionize the way you read and interact with online content! Say goodbye to feeling overwhelmed by large chunks of text and hello to an organized and smooth reading experience 🤓
 Word Pacer allows you to control the speed at which you read, manage your eye movement, and maintain focus while navigating through online text. By underlining each word at your desired pace, Word Pacer can instantly transform your web-based reading sessions into a more focused, efficient, and enjoyable experience 🌟
-## ✨ Key Features:
+## ✨ Key Features
 1. **Adjustable Words per Minute (WPM)** - Customize the pacing speed to match your reading preferences and boost reading comprehension. Whether you're a fast or slow reader, Word Pacer adjusts to your needs ⏩
 2. **Time Before Pacing** - Define the delay (in milliseconds) before the pacing process begins, giving you control over when the reading assistant starts ⏰
 3. **Nearest Word Detection** - As you move your cursor over the text, Word Pacer identifies the nearest word and highlights it for you, ensuring you never lose your place 🔍
 4. **Automatic Scrolling** - No need to manually scroll as you read; Word Pacer automatically scrolls the page at your set pace, offering a seamless reading experience 🔄
-## 🚀 How to use Word Pacer:
+## 🚀 How to use Word Pacer
 1. Install the extension and click the Word Pacer icon.
 2. Customize the Words per Minute (WPM) and Time Before Pacing settings to suit your preferences 🎛️
 3. Start or stop the reading assistant by pressing the "Start" or "Stop" button 🟢🔴
 4. Browse websites and experience the benefits of Word Pacer as it guides your reading 🌐
 With Word Pacer, you can now tackle those daunting walls of text and accelerate your reading skills with ease. Give your eyes a break and enhance your browsing experience with this user-friendly reading assistant. Download Word Pacer today to unlock a new world of efficient online reading! 🎉
-## 🤝 How to Contribute to Word Pacer:
+## How to install
+To install Word Pacer from the source, follow these steps:
+1. Download the source code as a ZIP file by clicking on the "Code" button and selecting "Download ZIP" or clone the repository using Git.
+2. Extract the ZIP file to a location on your computer.
+3. Open the Google Chrome browser and navigate to the Extensions page by clicking the three-dot menu in the upper right corner, then selecting "More Tools" > "Extensions", or alternatively, enter `chrome://extensions` in the address bar and press enter.
+4. Enable "Developer Mode" by toggling the switch in the top right corner of the Extensions page.
+5. Click the "Load unpacked" button and browse to the location where you extracted the ZIP file. Select the "src" folder inside the extracted repository, and click "Open".
+6. The Word Pacer extension should now appear in your list of Chrome extensions.
+7. Click the Word Pacer icon in your browser toolbar to start using the extension and customize your settings as needed.
+
+(Currently, Word Pacer is not released on the chrome web store.)
+## 🤝 How to Contribute to Word Pacer
 We appreciate your interest in contributing to Word Pacer, an open-source project dedicated to enhancing the online reading experience. Follow the steps below to contribute to this project:
 1. **Fork the repository**: Make a copy of the Word Pacer repository by clicking the "Fork" button in the top-right corner of the [GitHub repository](https://github.com/danielpodrazka/word_pacer).🍴
 2. **Clone the forked repository**: After forking the repository, clone your forked version to your local machine using the command `git clone https://github.com/your_username/word_pacer.git`. Don't forget to replace "your_username" with your valid GitHub username 💻
