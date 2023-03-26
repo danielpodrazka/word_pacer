@@ -1,11 +1,16 @@
 {
   "name": "Word Pacer",
+   "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
    "action": {
     "default_popup": "popup.html"
   },
   "manifest_version": 3,
   "version": "0.7",
-  "description": "Turns the page red when you click the icon",
+  "description": "Let's you set your pace. It underlines the word you're reading and scrolls automaticallyscreenshots",
   "permissions": ["activeTab", "scripting", "storage"],
   "web_accessible_resources": [
     {
