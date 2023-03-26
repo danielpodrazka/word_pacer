@@ -1,44 +1,77 @@
 var underlineTimeout;
 var animationInterval;
-var timeBeforeScrolling = 500; // miliseconds
-var foundRectIndex = 0;
-var wordsPerMinute = 500;
-var previousRectY = 0;
+var timeBeforeScrolling; // miliseconds
+var foundRectIndex;
+var wordsPerMinute;
+var previousRectY;
 var bodyTextElements;
 var allWordCoordinates = [];
 var overlay;
 var stop = true;
 var rectSetByUser;
 var mouseDistance;
+var underlineColor;
+
+function findMostFrequentColor(elementColors) {
+  const colorsCount = elementColors.reduce((acc, color) => {
+    acc[color] = (acc[color] || 0) + 1;
+    return acc;
+  }, {});
+  let mostFrequentColor = null;
+  let maxCount = 0;
+  for (const color in colorsCount) {
+    if (colorsCount[color] > maxCount) {
+      maxCount = colorsCount[color];
+      mostFrequentColor = color;
+    }
+  }
+  return mostFrequentColor;
+}
+
+function getMostCommonColor(bodyTextElements) {
+  const elementColors = [];
+  for (let i = 0; i < bodyTextElements.length; i++) {
+    const color = window.getComputedStyle(bodyTextElements[i].parentNode).color;
+    elementColors.push(color);
+  }
+  return findMostFrequentColor(elementColors);
+}
 
 function startUnderlineAnimation() {
     if (stop) {
         return;
     }
     const wordsIntervalDuration = (60 / wordsPerMinute) * 1000;
+    var scrolling = false;
     const moveUnderlineToNextWord = () => {
+        let prevRect;
+        let currentCoords;
+
         if (mouseDistance > 200) {
             return;
         }
+        prevRect = allWordCoordinates[foundRectIndex - 1];
+            if (prevRect !== undefined) {
+                previousRectY = prevRect.rect.y;
+            } else {
+                previousRectY = 0;
+            }
+        currentCoords = allWordCoordinates[foundRectIndex];
 
-        if (foundRectIndex > 0) {
-            previousRectY = allWordCoordinates[foundRectIndex - 1].rect.y;
-        } else {
-            previousRectY = 0;
-        }
-        const currentCoords = allWordCoordinates[foundRectIndex];
         overlay.innerHTML = '';
-
-        if (previousRectY && previousRectY < currentCoords.rect.y && !stop && currentCoords.rect !== rectSetByUser) {
+        scrolling = previousRectY && previousRectY < currentCoords.rect.y && !stop && currentCoords.rect !== rectSetByUser && !scrolling;
+        if (scrolling) {
             window.scrollBy({
                 top: currentCoords.rect.y - previousRectY,
-                behavior: 'smooth'
+                behavior: 'instant'
             });
-        } else {
-            const newUnderline = createUnderline(currentCoords.rect);
-            overlay.appendChild(newUnderline);
+            foundRectIndex--;
         }
+        if (currentCoords !== undefined) {
+          let newUnderline = createUnderline(currentCoords.rect);
+            overlay.appendChild(newUnderline);
 
+        }
         foundRectIndex++;
         if (foundRectIndex >= allWordCoordinates.length) {
             clearInterval(animationInterval);
@@ -142,16 +175,15 @@ function createUnderline(rect) {
     underline.style.top = `${rect.bottom - 1}px`;
     underline.style.width = `${rect.width}px`;
     underline.style.height = '1px';
-    underline.style.backgroundColor = 'black';
+    underline.style.backgroundColor = underlineColor;
     return underline;
 }
-
 
 function startReadingAssistant() {
     stop = false;
     foundRectIndex = 0;
     bodyTextElements = getTextNodes(document.body);
-
+    underlineColor = getMostCommonColor(bodyTextElements);
     function main() {
         overlay = document.createElement('div');
         overlay.style.position = 'fixed';
@@ -174,7 +206,6 @@ function startReadingAssistant() {
 
         updateOverlayPosition();
         document.addEventListener('mousemove', event => {
-
             updateUnderlinePos(event);
         });
         chrome.storage.sync.get(["wordsPerMinute", "timeBeforeScrolling"], (items) => {
@@ -186,14 +217,14 @@ function startReadingAssistant() {
             }
             stopUnderlineAnimationAfterDelay();
         });
-
     }
-
     main();
 }
 
 function stopReadingAssistant() {
     stop = true;
+    overlay.innerHTML = '';
+    stopUnderlineAnimationAfterDelay();
 }
 chrome.runtime.onMessage.addListener(
   (request, sender, sendResponse) => {
