@@ -1,5 +1,6 @@
 var extensionEnabled;
 
+
 function updateEnabledState() {
     chrome.storage.sync.get("extensionEnabled", (items) => {
         if (items.extensionEnabled !== undefined) {
@@ -54,6 +55,5 @@ document.addEventListener("DOMContentLoaded", () => {
             chrome.scripting.executeScript(details);
         });
     });
-
 });
 

@@ -149,6 +149,7 @@ function createUnderline(rect) {
 
 function startReadingAssistant() {
     stop = false;
+    foundRectIndex = 0;
     bodyTextElements = getTextNodes(document.body);
 
     function main() {
@@ -194,3 +195,20 @@ function startReadingAssistant() {
 function stopReadingAssistant() {
     stop = true;
 }
+chrome.runtime.onMessage.addListener(
+  (request, sender, sendResponse) => {
+    if (request.command === "start") {
+      startReadingAssistant();
+    } else if (request.command === "stop") {
+      stopReadingAssistant();
+    }
+  }
+);
+chrome.runtime.sendMessage({ message: "contentScriptReady" });
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.command === "start") {
+    startReadingAssistant();
+  } else if (request.command === "stop") {
+    stopReadingAssistant();
+  }
+});
