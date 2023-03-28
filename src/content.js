@@ -41,7 +41,12 @@ function startUnderlineAnimation() {
     if (stop) {
         return;
     }
-    const wordsIntervalDuration = (60 / wordsPerMinute) * 1000;
+    
+function getWordsIntervalDuration(wordLength) {
+    return (60 / wordsPerMinute) * 1000 * wordLength;
+}
+
+const wordsIntervalDuration = getWordsIntervalDuration(currentCoords.word.length);
     var scrolling = false;
     const moveUnderlineToNextWord = () => {
         let prevRect;
