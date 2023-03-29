@@ -36,14 +36,26 @@ function getMostCommonColor(bodyTextElements) {
   }
   return findMostFrequentColor(elementColors);
 }
-
+function getWordsIntervalDuration(wordLength) {
+  // Adjust the speed based on the word's length, assuming an average word length of 5 characters
+  const lengthFactor = (wordLength || 1) / 5;
+  return (60 / wordsPerMinute) * 1000 * lengthFactor;
+}
 function startUnderlineAnimation() {
     if (stop) {
         return;
     }
-    const wordsIntervalDuration = (60 / wordsPerMinute) * 1000;
-    var scrolling = false;
-    const moveUnderlineToNextWord = () => {
+    const moveAndUpdateInterval = () => {
+        const wordsIntervalDuration = moveUnderlineToNextWord();
+        if (wordsIntervalDuration) {
+            animationInterval = setTimeout(moveAndUpdateInterval, wordsIntervalDuration);
+        } else {
+            clearInterval(animationInterval);
+        }
+    };
+    moveAndUpdateInterval();
+}
+    function moveUnderlineToNextWord(){
         let prevRect;
         let currentCoords;
 
@@ -57,6 +69,7 @@ function startUnderlineAnimation() {
                 previousRectY = 0;
             }
         currentCoords = allWordCoordinates[foundRectIndex];
+         const wordsIntervalDuration = getWordsIntervalDuration(currentCoords.word.length);
 
         overlay.innerHTML = '';
         scrolling = previousRectY && previousRectY < currentCoords.rect.y && !stop && currentCoords.rect !== rectSetByUser && !scrolling;
@@ -76,12 +89,8 @@ function startUnderlineAnimation() {
         if (foundRectIndex >= allWordCoordinates.length) {
             clearInterval(animationInterval);
         }
+         return wordsIntervalDuration;
     };
-    moveUnderlineToNextWord();
-
-    animationInterval = setInterval(moveUnderlineToNextWord, wordsIntervalDuration);
-}
-
 function stopUnderlineAnimationAfterDelay() {
     clearTimeout(underlineTimeout);
     clearInterval(animationInterval);
