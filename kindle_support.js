@@ -4,7 +4,9 @@ const minColWidth = 200;
 const underlineColor = 'blue'
 const defaultKindleFontSize = 5;
 var currentDrawing = 0;
+var underlineSpeed = 200;
 var logs = [];
+var applicationStop = false;
 /**
  * Retrieves the RGB color values for a pixel at a given x, y coordinate.
  * @param {number} y - The y-coordinate of the pixel.
@@ -145,12 +147,19 @@ function getLastX(colRange, line) {
     }
     return colRange.start;
 }
-function getClosestLine(underlineY) {
+function getClosestLine(underlineX, underlineY) {
+    let underlinePos = {x: underlineX, y:underlineY};
+    let underlineColRange =  getColRange(columnRanges, underlinePos);
     let minDist = Infinity;
     let closestLineIndex = -1;
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i];
+      let columnRange = getColRange(columnRanges, line);
+      if (columnRange !== underlineColRange){
+          continue;
+      }
         let y = line.y;
+
         let dist = Math.abs(y - underlineY);
         if (dist < minDist) {
             minDist = dist;
@@ -224,7 +233,7 @@ async function drawLine(fromX,toX,y, randomColor= false) {
         linesCtx.moveTo(Math.max(x-5,fromX), y );
         linesCtx.lineTo(Math.min(x+25,toX), y );
         linesCtx.stroke();
-        await sleep(30);
+        await sleep(60000/(underlineSpeed*10));
     }
 }
 
@@ -241,9 +250,9 @@ async function drawUnderline(underlineX, underlineY){
     linesCanvas.height = imageWithText.height;
     linesCanvas.id = 'underlines-canvas';
     document.body.appendChild(linesCanvas);
-    let startLineIndex = getClosestLine(underlineY);
+    let startLineIndex = getClosestLine(underlineX, underlineY);
     for (let i = startLineIndex; i < lines.length; i++) {
-        if (currentDrawing !== thisDrawing){
+        if (currentDrawing !== thisDrawing || applicationStop){
             break;
         }
         let line = lines[i];
@@ -448,15 +457,13 @@ function drawGuidelines() {
     let columns = getColumns(maxX, maxY);
     columnRanges = getColumnRanges(columns);
     logExecutionTime("3", start);
-    var filteredPixelsPerColumnRange = filterNonWhitePixelsByColumnRanges(columnRanges);
+    filteredPixelsPerColumnRange = filterNonWhitePixelsByColumnRanges(columnRanges);
     logExecutionTime("4", start);
     draw(filteredPixelsPerColumnRange, columnRanges,imageWithTextRect);
     logExecutionTime("5", start);
 }
 function updateUnderlinePos(event) {
-
-    let stop = false;
-    if (stop) {
+    if (applicationStop) {
         return;
     }
     let imageWithText = document.getElementsByClassName('kg-full-page-img')[0];
@@ -474,7 +481,6 @@ function updateUnderlinePos(event) {
              mouseY = event.clientY - imageWithTextRect.top;
         }
     drawUnderline(mouseX,mouseY);
-    // stopUnderlineAnimationAfterDelay();
 }
 var canvas;
 var nonWhitePixels = [];
@@ -486,6 +492,7 @@ var monitoringCtx = monitoringCanvas.getContext("2d");
 // Define the specific section of imageWithText to be checked
 var lines;
 var columnRanges;
+var filteredPixelsPerColumnRange;
 drawGuidelines();
 
 document.addEventListener('mousemove', event => {
