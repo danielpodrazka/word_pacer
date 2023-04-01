@@ -5,10 +5,10 @@ const underlineColor = 'blue'
 const defaultKindleFontSize = 5;
 var logs = [];
 /**
- * Retrieves the RGBA color values for a pixel at a given x, y coordinate.
+ * Retrieves the RGB color values for a pixel at a given x, y coordinate.
  * @param {number} y - The y-coordinate of the pixel.
  * @param {number} x - The x-coordinate of the pixel.
- * @returns {Object} An object containing the color components r, g, b, and a.
+ * @returns {Object} An object containing the color components r, g, b.
  */
 function getRGB(x,y) {
     // Calculate the index of the current pixel in the data array
