@@ -6,7 +6,6 @@ const defaultKindleFontSize = 5;
 var logs = [];
 /**
  * Retrieves the RGBA color values for a pixel at a given x, y coordinate.
- * @param data
  * @param {number} y - The y-coordinate of the pixel.
  * @param {number} x - The x-coordinate of the pixel.
  * @returns {Object} An object containing the color components r, g, b, and a.
@@ -28,11 +27,9 @@ function isFullyWhite(x,y) {
 
 /**
  * Finds and returns the coordinates of non-white pixels on the canvas.
- * @param {object} canvas - The canvas object.
- * @param data
  * @returns {Array} An array of objects containing the x and y coordinates of non-white pixels.
  */
-function findNonWhitePixels( data) {
+function findNonWhitePixels() {
     let pixels = [];
     for (let y = 0; y < canvas.height; y++) {
         for (let x = 0; x < canvas.width; x++) {
@@ -64,7 +61,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function getColumns(data, maxX, maxY) {
+function getColumns(maxX, maxY) {
     let columns = [];
     let whiteYs = 0;
     for (let x = 0; x < maxX; x++) {
@@ -344,18 +341,6 @@ function getKindleFontSize() {
     console.warn("Kindle fontsize element not found. Returning default");
     return defaultKindleFontSize;
 }
-
-var nonWhitePixels = [];
-
-var imageData;
-var data;
-
-var guideLinesCanvas=document.createElement('canvas');
-var monitoringCanvas = document.createElement("canvas");
-var monitoringCtx = monitoringCanvas.getContext("2d");
-// Define the specific section of imageWithText to be checked
-var randomWidth = 30;
-var randomHeight = 30;
 // Function to compare pixel data
 function compareImageData(imageData1, imageData2) {
   if (imageData1.data.length !== imageData2.data.length) {
@@ -392,10 +377,7 @@ function captureSection() {
     monitoringCanvas.width,
     monitoringCanvas.height
   );
-    }catch (TypeError) {
-
-        }
-
+    }catch (TypeError) {}
   return monitoringCtx.getImageData(
     0,
     0,
@@ -403,17 +385,6 @@ function captureSection() {
     monitoringCanvas.height
   );
 }
-// Capture the initial state of imageWithText
-var initialSection = captureSection();
-// Monitor the imageWithText every 250ms
-setInterval(function () {
-  var currentSection = captureSection();
-  if (!compareImageData(initialSection, currentSection)) {
-    drawGuidelines();
-    initialSection = currentSection; // Update the initialSection for subsequent comparisons
-  }
-}, 200);
-var canvas;
 function drawGuidelines() {
     let start = Date.now();
     let imageWithText = document.getElementsByClassName('kg-full-page-img')[0];
@@ -433,10 +404,10 @@ function drawGuidelines() {
     imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     data = imageData.data;
     logExecutionTime("1", start);
-    nonWhitePixels = findNonWhitePixels(data);
+    nonWhitePixels = findNonWhitePixels();
     logExecutionTime("2", start);
     nonWhitePixels.sort(sortPixels);
-    let columns = getColumns(data, maxX, maxY);
+    let columns = getColumns(maxX, maxY);
     let columnRanges = getColumnRanges(columns);
     logExecutionTime("3", start);
     var filteredPixelsPerColumnRange = filterNonWhitePixelsByColumnRanges(columnRanges);
@@ -444,4 +415,28 @@ function drawGuidelines() {
     draw(filteredPixelsPerColumnRange, columnRanges,imageWithTextRect);
     logExecutionTime("5", start);
 }
+var canvas;
+var nonWhitePixels = [];
+var imageData;
+var data;
+var guideLinesCanvas=document.createElement('canvas');
+var monitoringCanvas = document.createElement("canvas");
+var monitoringCtx = monitoringCanvas.getContext("2d");
+// Define the specific section of imageWithText to be checked
+var randomWidth = 30;
+var randomHeight = 30;
+
+// Capture the initial state of imageWithText
+var initialSection = captureSection();
+
 drawGuidelines();
+
+
+// Monitor the imageWithText every 200ms
+setInterval(function () {
+  var currentSection = captureSection();
+  if (!compareImageData(initialSection, currentSection)) {
+    drawGuidelines();
+    initialSection = currentSection; // Update the initialSection for subsequent comparisons
+  }
+}, 200);
