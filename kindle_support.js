@@ -22,14 +22,8 @@ function getRGBA(y, x) {
     return {r, g, b, a};
 }
 
-/**
- * Determines if the provided color values represent a fully white color.
- * @param {number} r - The red component of the color.
- * @param {number} g - The green component of the color.
- * @param {number} b - The blue component of the color.
- * @returns {boolean} True if the color is fully white, false otherwise.
- */
-function isFullyWhite(r, g, b) {
+function isFullyWhite(x,y) {
+    let {r,g,b,a} = getRGBA(y,x);
     return r >= colorCutOff && g >= colorCutOff && b >= colorCutOff;
 }
 
@@ -43,9 +37,8 @@ function findNonWhitePixels( data) {
     let pixels = [];
     for (let y = 0; y < canvas.height; y++) {
         for (let x = 0; x < canvas.width; x++) {
-            let {r, g, b, a} = getRGBA(y, x);
             // If the pixel is not fully white, store its coordinates in the array
-            if (!isFullyWhite(r, g, b)) {
+            if (!isFullyWhite(x,y)) {
                 pixels.push({x, y});
             }
         }
@@ -78,8 +71,7 @@ function getColumns(data, maxX, maxY) {
     for (let x = 0; x < maxX; x++) {
         let whitePixelsInColumn = 0;
         for (let y = 0; y < maxY; y++) {
-            const index = (y * maxX + x) * 4;
-            if (isFullyWhite(data[index], data[index + 1], data[index + 2])) {
+            if (isFullyWhite(x,y)) {
                 whitePixelsInColumn++;
             }
         }
@@ -135,8 +127,7 @@ function getColRange(columnRanges, line) {
  */
 function getFirstX(colRange, line) {
     for (let x = colRange.start; x < colRange.end; x++) {
-        let {r, g, b, a} = getRGBA(line.y, x);
-        if (!isFullyWhite(r, g, b)) {
+        if (!isFullyWhite(x, line.y)) {
             return x;
         }
     }
@@ -151,8 +142,7 @@ function getFirstX(colRange, line) {
  */
 function getLastX(colRange, line) {
     for (let x = colRange.end; x > colRange.start; x--) {
-        let {r, g, b, a} = getRGBA(line.y, x);
-        if (!isFullyWhite(r, g, b)) {
+        if (!isFullyWhite(x, line.y)) {
             return x;
         }
     }
