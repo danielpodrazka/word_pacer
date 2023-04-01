@@ -233,7 +233,7 @@ async function drawLine(fromX,toX,y, randomColor= false) {
         linesCtx.moveTo(Math.max(x-5,fromX), y );
         linesCtx.lineTo(Math.min(x+25,toX), y );
         linesCtx.stroke();
-        await sleep(60000/(underlineSpeed*10));
+        await sleep(60000/(Math.max(underlineSpeed,1)*10));
     }
 }
 
@@ -509,3 +509,28 @@ setInterval(function () {
     imageWithTextSrc = document.getElementsByClassName('kg-full-page-img')[0].src;
   }
 }, 100);
+
+function handleKeyDown(event) {
+  // Check for left CTRL and left ALT keys combination
+  if (event.ctrlKey && event.altKey && event.key === 'Alt') {
+    event.preventDefault();
+    applicationStop = !applicationStop;
+  }
+  // Check for left CTRL key
+  else if (event.ctrlKey && event.key === 'Control') {
+    event.preventDefault();
+    underlineSpeed -= 10;
+  }
+  // Check for left ALT key
+  else if (event.altKey && event.key === 'Alt') {
+    event.preventDefault();
+    underlineSpeed += 10;
+  }
+  console.log(underlineSpeed);
+}
+// Add keyboard event listener
+document.addEventListener('keydown', handleKeyDown);
+// Cleanup by removing event listener on unload
+window.addEventListener('unload', () => {
+  document.removeEventListener('keydown', handleKeyDown);
+});
