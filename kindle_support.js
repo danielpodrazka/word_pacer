@@ -3,6 +3,7 @@ const columnGap = 10;
 const minColWidth = 200;
 const underlineColor = 'blue'
 const defaultKindleFontSize = 5;
+var currentDrawing = 0;
 var logs = [];
 /**
  * Retrieves the RGB color values for a pixel at a given x, y coordinate.
@@ -144,7 +145,21 @@ function getLastX(colRange, line) {
     }
     return colRange.start;
 }
-// function isLineWhite(
+function getClosestLine(underlineY) {
+    let minDist = Infinity;
+    let closestLineIndex = -1;
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        let y = line.y;
+        let dist = Math.abs(y - underlineY);
+        if (dist < minDist) {
+            minDist = dist;
+            closestLineIndex = i;
+        }
+    }
+    return closestLineIndex;
+}
+
 /**
  * Draws lines on a canvas based on the input image.
  * @returns {Promise} A promise that resolves when the lines are drawn.
@@ -159,25 +174,89 @@ async function draw(pixelsPerColumn, columnRanges,elemRect, randomColor = false)
     } else {
       linesCtx.strokeStyle = underlineColor;
     }
+    linesCtx.strokeStyle = 'yellow';
     // Update the position of the linesCanvas to match the position of the imageElement
     linesCanvas.style.position = 'absolute';
     linesCanvas.style.left = `${elemRect.left}px`;
     linesCanvas.style.top = `${elemRect.top}px`;
     let pixels = [].concat(...pixelsPerColumn);
-    for (const line of pixels) {
+    lines = [];
+    for (let i = 0; i < pixels.length-1; i++) {
+        if (pixels[i].y !== pixels[i+1].y){
+            lines.push(pixels[i]);
+        }
+    }
+
+    for (const line of lines) {
         let colRange = getColRange(columnRanges, line);
         let y = line.y;
         let firstX = getFirstX(colRange, line);
         let lastX = getLastX(colRange, line);
         linesCtx.beginPath();
         linesCtx.moveTo(firstX, y + 3);
-
-
-
-        linesCtx.beginPath();
-        linesCtx.moveTo(firstX, y + 3);
         linesCtx.lineTo(lastX, y + 3);
         linesCtx.stroke();
+    }
+}
+
+async function drawLine(fromX,toX,y, randomColor= false) {
+    let imageWithText = document.getElementsByClassName('kg-full-page-img')[0];
+    if (imageWithText === undefined){
+        return;
+    }
+    let imageWithTextRect = imageWithText.getBoundingClientRect();
+    let linesCanvas = document.getElementById('underlines-canvas');
+    let linesCtx = linesCanvas.getContext('2d');
+    linesCanvas.style.pointerEvents = 'none';
+    if (randomColor) {
+      let colors = ['red','green','blue','yellow'];
+      linesCtx.strokeStyle =  colors[Math.floor(Math.random()*colors.length)];
+    } else {
+      linesCtx.strokeStyle = underlineColor;
+    }
+    linesCtx.lineWidth = 2;
+    // Update the position of the linesCanvas to match the position of the imageElement
+    linesCanvas.style.position = 'absolute';
+    linesCanvas.style.left = `${imageWithTextRect.left}px`;
+    linesCanvas.style.top = `${imageWithTextRect.top}px`;
+    for (let x = fromX; x <= toX; x= x+25) {
+        linesCtx.beginPath();
+        linesCtx.moveTo(Math.max(x-5,fromX), y );
+        linesCtx.lineTo(Math.min(x+25,toX), y );
+        linesCtx.stroke();
+        await sleep(30);
+    }
+}
+
+async function drawUnderline(underlineX, underlineY){
+    currentDrawing++;
+    let thisDrawing = currentDrawing;
+     let imageWithText = document.getElementsByClassName('kg-full-page-img')[0];
+    let oldCanvas = document.getElementById('underlines-canvas');
+    if (oldCanvas != undefined) {
+        document.getElementById('underlines-canvas').remove();
+    }
+    let linesCanvas =  document.createElement('canvas');
+    linesCanvas.width = imageWithText.width;
+    linesCanvas.height = imageWithText.height;
+    linesCanvas.id = 'underlines-canvas';
+    document.body.appendChild(linesCanvas);
+    let startLineIndex = getClosestLine(underlineY);
+    for (let i = startLineIndex; i < lines.length; i++) {
+        if (currentDrawing !== thisDrawing){
+            break;
+        }
+        let line = lines[i];
+        let colRange = getColRange(columnRanges, line);
+        let y = line.y;
+        let firstX = getFirstX(colRange, line);
+        let lastX = getLastX(colRange, line);
+        if (i === startLineIndex) {
+          await drawLine(Math.max(underlineX, firstX), lastX, y + 3);
+        } else{
+             await drawLine(firstX, lastX, y + 3);
+        }
+
     }
 }
 
@@ -304,12 +383,14 @@ function filterNonWhitePixelsByRow(columnNonWhitePixels) {
 function filterNonWhitePixelsByColumnRanges(columnRanges) {
     return columnRanges.map(columnRange => filterNonWhitePixelsByRow(filterConsecutiveNonWhitePixels(getColumnNonWhitePixels(columnRange))));
 }
-function logExecutionTime(message, startTime) {
+function logExecutionTime(message, startTime, print_logs=false) {
     logs.push(`${message} Execution time: ${Date.now() - startTime} ms`);
     if (logs.length > 100){
         logs = [];
     }
-    // console.log(logs.at(-1));
+    if(print_logs) {
+        console.log(logs.at(-1));
+    }
 }
 
 function getAllElementsWithAttribute(root, attributeName) {
@@ -335,56 +416,13 @@ function getKindleFontSize() {
     let root = document.documentElement;
     let elementsWithAttribute = getAllElementsWithAttribute(root, attributeName);
     let fontSliderElement = elementsWithAttribute[0];
-    if (fontSliderElement !== undefined && fontSliderElement.style.left === '100%'){
+    if (fontSliderElement !== undefined && fontSliderElement.style.left === '100%') {
         return parseInt(elementsWithAttribute[0].getAttribute(attributeName))
     }
     console.warn("Kindle fontsize element not found. Returning default");
     return defaultKindleFontSize;
 }
-// Function to compare pixel data
-function compareImageData(imageData1, imageData2) {
-  if (imageData1.data.length !== imageData2.data.length) {
-    return false;
-  }
-  for (var i = 0; i < imageData1.data.length; i++) {
-    if (imageData1.data[i] !== imageData2.data[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-// Function to capture the specific section from the imageWithText
-function captureSection() {
-    let imageWithText = document.getElementsByClassName('kg-full-page-img')[0];
-    let imageWidth = imageWithText.width;
-    let numOfSamples = 200;
-    let sampleWidth = imageWidth / numOfSamples;
-    let randomSampleIndex = Math.floor(Math.random() * numOfSamples);
-    let randomWidthSample = sampleWidth * randomSampleIndex;
-    let imageHeight = imageWithText.height;
-    let imageHeightSampleSize = Math.floor(imageHeight / numOfSamples);
-    let randomSampleHeightIndex = Math.floor(Math.random() * numOfSamples);
-    let randomHeightSample = randomSampleHeightIndex * imageHeightSampleSize;
-    try{
-      monitoringCtx.drawImage(
-    imageWithText,
-    randomWidthSample,
-    randomHeightSample,
-    randomWidth,
-    randomHeight,
-    0,
-    0,
-    monitoringCanvas.width,
-    monitoringCanvas.height
-  );
-    }catch (TypeError) {}
-  return monitoringCtx.getImageData(
-    0,
-    0,
-    monitoringCanvas.width,
-    monitoringCanvas.height
-  );
-}
+
 function drawGuidelines() {
     let start = Date.now();
     let imageWithText = document.getElementsByClassName('kg-full-page-img')[0];
@@ -408,12 +446,35 @@ function drawGuidelines() {
     logExecutionTime("2", start);
     nonWhitePixels.sort(sortPixels);
     let columns = getColumns(maxX, maxY);
-    let columnRanges = getColumnRanges(columns);
+    columnRanges = getColumnRanges(columns);
     logExecutionTime("3", start);
     var filteredPixelsPerColumnRange = filterNonWhitePixelsByColumnRanges(columnRanges);
     logExecutionTime("4", start);
     draw(filteredPixelsPerColumnRange, columnRanges,imageWithTextRect);
     logExecutionTime("5", start);
+}
+function updateUnderlinePos(event) {
+
+    let stop = false;
+    if (stop) {
+        return;
+    }
+    let imageWithText = document.getElementsByClassName('kg-full-page-img')[0];
+    if (imageWithText === undefined){
+        return;
+    }
+    let imageWithTextRect = imageWithText.getBoundingClientRect();
+      var mouseX;
+  var mouseY;
+        if (event == null){
+                 mouseX = imageWithTextRect.left;
+                 mouseY =imageWithTextRect.top;
+    }else {
+             mouseX = event.clientX - imageWithTextRect.left;
+             mouseY = event.clientY - imageWithTextRect.top;
+        }
+    drawUnderline(mouseX,mouseY);
+    // stopUnderlineAnimationAfterDelay();
 }
 var canvas;
 var nonWhitePixels = [];
@@ -423,20 +484,21 @@ var guideLinesCanvas=document.createElement('canvas');
 var monitoringCanvas = document.createElement("canvas");
 var monitoringCtx = monitoringCanvas.getContext("2d");
 // Define the specific section of imageWithText to be checked
-var randomWidth = 30;
-var randomHeight = 30;
-
-// Capture the initial state of imageWithText
-var initialSection = captureSection();
-
+var lines;
+var columnRanges;
 drawGuidelines();
 
+document.addEventListener('mousemove', event => {
+    updateUnderlinePos(event);
+});
 
+let imageWithTextSrc = document.getElementsByClassName('kg-full-page-img')[0].src;
 // Monitor the imageWithText every 200ms
 setInterval(function () {
-  var currentSection = captureSection();
-  if (!compareImageData(initialSection, currentSection)) {
+
+  if ( document.getElementsByClassName('kg-full-page-img')[0].src !== imageWithTextSrc) {
     drawGuidelines();
-    initialSection = currentSection; // Update the initialSection for subsequent comparisons
+    updateUnderlinePos(null)
+    imageWithTextSrc = document.getElementsByClassName('kg-full-page-img')[0].src;
   }
-}, 200);
+}, 100);
