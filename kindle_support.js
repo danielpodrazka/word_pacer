@@ -11,19 +11,18 @@ var logs = [];
  * @param {number} x - The x-coordinate of the pixel.
  * @returns {Object} An object containing the color components r, g, b, and a.
  */
-function getRGBA(y, x) {
+function getRGB(y, x) {
     // Calculate the index of the current pixel in the data array
     let index = (y * canvas.width + x) * 4;
     // Get the color components of the pixel (red, green, blue, alpha)
     let r = data[index];
     let g = data[index + 1];
     let b = data[index + 2];
-    let a = data[index + 3];
-    return {r, g, b, a};
+    return {r, g, b};
 }
 
 function isFullyWhite(x,y) {
-    let {r,g,b,a} = getRGBA(y,x);
+    let {r,g,b} = getRGB(y,x);
     return r >= colorCutOff && g >= colorCutOff && b >= colorCutOff;
 }
 
