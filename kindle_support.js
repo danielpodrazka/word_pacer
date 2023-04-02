@@ -5,8 +5,19 @@ const underlineColor = 'blue'
 const defaultKindleFontSize = 5;
 var currentDrawing = 0;
 var underlineSpeed = 200;
-var logs = [];
+
 var applicationStop = false;
+var canvas;
+var logs = [];
+var nonWhitePixels = [];
+var imageData;
+var data;
+var guideLinesCanvas=document.createElement('canvas');
+var lines;
+var columnRanges;
+var filteredPixelsPerColumnRange;
+
+
 /**
  * Retrieves the RGB color values for a pixel at a given x, y coordinate.
  * @param {number} y - The y-coordinate of the pixel.
@@ -159,7 +170,6 @@ function getClosestLine(underlineX, underlineY) {
           continue;
       }
         let y = line.y;
-
         let dist = Math.abs(y - underlineY);
         if (dist < minDist) {
             minDist = dist;
@@ -482,34 +492,6 @@ function updateUnderlinePos(event) {
         }
     drawUnderline(mouseX,mouseY);
 }
-var canvas;
-var nonWhitePixels = [];
-var imageData;
-var data;
-var guideLinesCanvas=document.createElement('canvas');
-var monitoringCanvas = document.createElement("canvas");
-var monitoringCtx = monitoringCanvas.getContext("2d");
-// Define the specific section of imageWithText to be checked
-var lines;
-var columnRanges;
-var filteredPixelsPerColumnRange;
-drawGuidelines();
-
-document.addEventListener('mousemove', event => {
-    updateUnderlinePos(event);
-});
-
-let imageWithTextSrc = document.getElementsByClassName('kg-full-page-img')[0].src;
-// Monitor the imageWithText every 200ms
-setInterval(function () {
-
-  if ( document.getElementsByClassName('kg-full-page-img')[0].src !== imageWithTextSrc) {
-    drawGuidelines();
-    updateUnderlinePos(null)
-    imageWithTextSrc = document.getElementsByClassName('kg-full-page-img')[0].src;
-  }
-}, 100);
-
 function handleKeyDown(event) {
   // Check for left CTRL and left ALT keys combination
   if (event.ctrlKey && event.altKey && event.key === 'Alt') {
@@ -526,8 +508,25 @@ function handleKeyDown(event) {
     event.preventDefault();
     underlineSpeed += 10;
   }
-  console.log(underlineSpeed);
+  // console.log(underlineSpeed);
 }
+
+drawGuidelines();
+
+let imageWithTextSrc = document.getElementsByClassName('kg-full-page-img')[0].src;
+// Monitor the imageWithText every 200ms
+setInterval(function () {
+
+  if ( document.getElementsByClassName('kg-full-page-img')[0].src !== imageWithTextSrc) {
+    drawGuidelines();
+    updateUnderlinePos(null)
+    imageWithTextSrc = document.getElementsByClassName('kg-full-page-img')[0].src;
+  }
+}, 100);
+
+document.addEventListener('mousemove', event => {
+    updateUnderlinePos(event);
+});
 // Add keyboard event listener
 document.addEventListener('keydown', handleKeyDown);
 // Cleanup by removing event listener on unload
