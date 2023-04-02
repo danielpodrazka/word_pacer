@@ -232,8 +232,10 @@ function startReadingAssistant() {
 
 function stopReadingAssistant() {
     stop = true;
+    if (overlay !== undefined){
     overlay.innerHTML = '';
     stopUnderlineAnimationAfterDelay();
+    }
 }
 chrome.runtime.onMessage.addListener(
   (request, sender, sendResponse) => {
